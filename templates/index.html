@@ -16,7 +16,7 @@
 <a href="/items/new">New Item</a>
 <ul>
     {% for item in latest %}
-    <li>{{ item.title }} ({{ item.category.name }})</li>
+    <li><a href="/{{ item.category.name }}/{{ item.title }}">{{ item.title }} (<a href="/{{ item.category.name }}">{{ item.category.name }}</a>)</a></li>
     {% endfor %}
 </ul>
 {% endblock %}
