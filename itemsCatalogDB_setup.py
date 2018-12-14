@@ -15,6 +15,17 @@ class Category(Base):
     name = Column(String(250), nullable=False)
 
 
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    full_name = Column(String(80), nullable=False)
+    username = Column(String(32), index=True)
+    email = Column(String(120), nullable=False)
+    password_hash = Column(String(64))
+    image = Column(String(250))
+
+
 class Item(Base):
     __tablename__ = 'item'
 
@@ -23,10 +34,11 @@ class Item(Base):
     description = Column(String(250))
     image = Column(String(250))
     category_id = Column(Integer, ForeignKey('category.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     category = relationship(Category)
+    user = relationship(User)
 
 
 engine = create_engine('sqlite:///itemsCatalog.db')
-
 
 Base.metadata.create_all(engine)
