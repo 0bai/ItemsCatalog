@@ -20,7 +20,6 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     full_name = Column(String(80), nullable=False)
-    username = Column(String(32), index=True)
     email = Column(String(120), nullable=False)
     password_hash = Column(String(64))
     image = Column(String(250))
