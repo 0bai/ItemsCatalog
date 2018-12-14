@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, jsonify, url_for, f
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from itemsCatalogDB_setup import Base, User, Item, Category
-import random, string, httplib2, json,requests
+import random, string, httplib2, json, requests
+
 app = Flask(__name__)
 
 # Connect to Database and create database session
@@ -12,12 +13,21 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+
 # Landing page route
-@app.route('/')
+@app.route("/")
 def show_landing_page():
     categories = session.query(Category).all()
     latest = session.query(Item).order_by(Item.timestamp.desc()).limit(10)
     return render_template("index.html", categories=categories, latest=latest)
+
+
+@app.route("/<string:category>")
+def show_categories(category):
+    category_id = session.query(Category).filter_by(name=category).one().id
+    categories = session.query(Category).all()
+    items = session.query(Item).filter_by(category_id=category_id).all()
+    return render_template("categories/show.html", category=category, items=items, categories=categories)
 
 
 if __name__ == '__main__':
