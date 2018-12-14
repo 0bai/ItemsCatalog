@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     {%- block head %}
-        <title>{% block title %}{% endblock title %}</title>
+        <title>{% block title %}{% endblock %} - Home Page</title>
 
         {%- block metas %}
             <meta charset="utf-8">
@@ -28,5 +28,7 @@
         {%- endblock scripts %}
     {%- endblock head %}
 </head>
-<body>
+<body>{% block body %} {% endblock %}</body>
+<p>Copyrights 2018 <a href="github.com/0bai">Obai Alnajjar</a></p>
+</html>
 
