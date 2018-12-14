@@ -1,10 +1,9 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, func, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
-
+from sqlalchemy.sql.functions import current_timestamp
 Base = declarative_base()
 
 
@@ -34,6 +33,7 @@ class Item(Base):
     image = Column(String(250))
     category_id = Column(Integer, ForeignKey('category.id'))
     user_id = Column(Integer, ForeignKey('user.id'))
+    timestamp = Column(DateTime, default=current_timestamp())
     category = relationship(Category)
     user = relationship(User)
 
