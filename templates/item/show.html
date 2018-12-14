@@ -4,6 +4,6 @@
     <h1>{{ item.title }}</h1>
     <p>{{ item.description }}</p>
     <img src="{{ item.image }}" alt="{{ item.title }} picture">
-    <a href="{{ category }}/{{ item.title }}/edit">Edit</a>
-    <a href="{{ category }}/{{ item.title }}/delete">Delete</a>
+    <a href="/{{ category.name }}/{{ item.title }}/edit">Edit</a>
+    <a href="/{{ category.name }}/{{ item.title }}/delete">Delete</a>
 {% endblock %}
