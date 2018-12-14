@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash, make_response
-from sqlalchemy import create_engine, asc
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from itemsCatalogDB_setup import Base, User, Item, Category
 import random, string, httplib2, json,requests
@@ -12,12 +12,14 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# Landing page route
 @app.route('/')
-def hello_world():
-    return 'Hello World!'
+def show_landing_page():
+    categories = session.query(Category).all()
+    latest = session.query(Item).order_by(Item.timestamp.desc()).limit(10)
+    return render_template("index.html", categories=categories, latest=latest)
 
 
 if __name__ == '__main__':
-    app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
