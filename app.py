@@ -23,11 +23,18 @@ def show_landing_page():
 
 
 @app.route("/<string:category>")
-def show_categories(category):
+def show_category(category):
     category_id = session.query(Category).filter_by(name=category).one().id
     categories = session.query(Category).all()
     items = session.query(Item).filter_by(category_id=category_id).all()
-    return render_template("categories/show.html", category=category, items=items, categories=categories)
+    return render_template("category/show.html", category=category, items=items, categories=categories)
+
+
+@app.route("/<string:category>/<string:item>")
+def show_item(category, item):
+    category = session.query(Category).filter_by(name=category).one()
+    item = session.query(Item).filter_by(title=item, category=category).one()
+    return render_template("item/show.html", item=item, category=category)
 
 
 if __name__ == '__main__':
