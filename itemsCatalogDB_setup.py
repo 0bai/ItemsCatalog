@@ -15,7 +15,15 @@ class Category(Base):
     name = Column(String(250), nullable=False)
 
 
+class Item(Base):
+    __tablename__ = 'item'
 
+    id = Column(Integer, primary_key=True)
+    title = Column(String(80), nullable=False)
+    description = Column(String(250))
+    image = Column(String(250))
+    category_id = Column(Integer, ForeignKey('category.id'))
+    category = relationship(Category)
 
 
 engine = create_engine('sqlite:///itemsCatalog.db')
