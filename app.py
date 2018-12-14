@@ -30,6 +30,18 @@ def show_category(category):
     return render_template("category/show.html", category=category, items=items, categories=categories)
 
 
+@app.route("/items/new", methods=["GET", "POST"])
+def new_item():
+    if request.method == "GET":
+        return render_template("item/new.html")
+    category = session.query(Category).filter_by(id=request.form["category"]).one()
+    #take the user from the login session
+    user = session.query(User).filter_by(id=1).one()
+    item = Item(title=request.form["title"],  description=request.form["description"], image=request.form["image"], category=category, user=user)
+    session.add(item)
+    session.commit()
+    return redirect(url_for("show_category", category=category.name))
+
 @app.route("/<string:category>/<string:item>")
 def show_item(category, item):
     category = session.query(Category).filter_by(name=category).one()
