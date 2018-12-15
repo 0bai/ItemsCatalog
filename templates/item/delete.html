@@ -1,6 +1,10 @@
-{% include ../includes/header.html %}
-<h1>Delete Item</h1>
-<p>Are you sure you want to delete?</p>
-<a href="javascript:history.back()">Cancel</a>
-<a href="/delete">Delete</a>
-{% include ../includes/footer.html %}
+{% extends "includes/skeleton.html" %}
+{% block title %} Delete Item {% endblock %}
+{% block body %}
+    <h1>Delete Item</h1>
+    <p>Are you sure you want to delete?</p>
+    <form action="/{{ category }}/{{ item }}/delete" method="post" enctype="multipart/form-data">
+        <button type="submit">Delete</button>
+        <a href="javascript:history.back()">Cancel</a>
+    </form>
+{% endblock %}
