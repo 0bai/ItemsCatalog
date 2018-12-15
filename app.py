@@ -52,9 +52,11 @@ def edit_item(category, item):
     category = session.query(Category).filter_by(name=category).one()
     item = session.query(Item).filter_by(category=category, title=item).one()
     categories = session.query(Category).all()
+    #check if the item exists
     if item:
         if request.method == "GET":
             return render_template("item/edit.html", item=item, category=category, categories=categories)
+        #if the category is changed check if theres an item with the same name in that category if so flash an error message
         if request.form["category"] != category.name:
             new_category = session.query(Category).filter_by(name=request.form["category"]).one()
             if session.query(Item).filter_by(title=item.title, category=new_category).count():
@@ -70,6 +72,20 @@ def edit_item(category, item):
         return redirect(url_for("show_item", item=item.title, category=category.name))
     return redirect(url_for("show_landing_page"))
 
+
+# Delete item page route
+@app.route("/<string:category>/<string:item>/delete", methods=["GET", "POST"])
+def delete_item(category, item):
+    if request.method == "GET":
+        return render_template("item/delete.html", category=category, item=item)
+    category = session.query(Category).filter_by(name=category).one()
+    item = session.query(Item).filter_by(title=item, category=category).count()
+    if item:
+        session.delete(item)
+        session.commit()
+        return redirect(url_for("show_category", category=category.name))
+    #flash error
+    return redirect(url_for("show_landing_page"))
 
 # Show item page route
 @app.route("/<string:category>/<string:item>")
