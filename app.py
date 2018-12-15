@@ -22,6 +22,27 @@ def show_landing_page():
     return render_template("index.html", categories=categories, latest=latest)
 
 
+# Login page route
+@app.route("/login", methods=["GET", "POST"])
+def show_login_page():
+    if request.method == "GET":
+        return render_template("login.html")
+    return redirect(url_for("show_landing_page"))
+
+
+# Login page route
+@app.route("/signup", methods=["GET", "POST"])
+def show_signup_page():
+    if request.method == "GET":
+        return render_template("user/new.html")
+    user = User(full_name=request.form["name"], email=request.form["email"], image=request.form["image"])
+    user.hash_password(request.form["password"])
+    session.add(user)
+    session.commit()
+    # TODO  Add user to login_session
+    return redirect(url_for("show_landing_page"))
+
+
 # Show category page route
 @app.route("/<string:category>")
 def show_category(category):
@@ -37,7 +58,7 @@ def new_item():
     if request.method == "GET":
         return render_template("item/new.html")
     category = session.query(Category).filter_by(id=request.form["category"]).one()
-    # take the user from the login session
+    # TODO take the user from the login session
     user = session.query(User).filter_by(id=1).one()
     item = Item(title=request.form["title"], description=request.form["description"], image=request.form["image"],
                 category=category, user=user)
@@ -52,15 +73,15 @@ def edit_item(category, item):
     category = session.query(Category).filter_by(name=category).one()
     item = session.query(Item).filter_by(category=category, title=item).one()
     categories = session.query(Category).all()
-    #check if the item exists
+    # TODO check if the item exists
     if item:
         if request.method == "GET":
             return render_template("item/edit.html", item=item, category=category, categories=categories)
-        #if the category is changed check if theres an item with the same name in that category if so flash an error message
+        # TODO if the category is changed check if theres an item with the same name in that category if so flash an error message
         if request.form["category"] != category.name:
             new_category = session.query(Category).filter_by(name=request.form["category"]).one()
             if session.query(Item).filter_by(title=item.title, category=new_category).count():
-                # Flash error message item already exists
+                # TODO Flash error message item already exists
                 return redirect(url_for("edit_item", item=item.title, category=category.name))
             category = new_category
         item.title = request.form["title"]
@@ -84,8 +105,9 @@ def delete_item(category, item):
         session.delete(item)
         session.commit()
         return redirect(url_for("show_category", category=category.name))
-    #flash error
+    # TODO flash error
     return redirect(url_for("show_landing_page"))
+
 
 # Show item page route
 @app.route("/<string:category>/<string:item>")
