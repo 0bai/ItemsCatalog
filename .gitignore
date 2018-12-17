@@ -108,3 +108,4 @@ venv.bak/
 .idea
 client_secrets.json
 itemsCatalog.db
+fb_client_secrets.json
