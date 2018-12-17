@@ -178,10 +178,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Current user is already connected.")
+        return redirect(url_for("show_landing_page"))
 
     # Store the access token in the session for later use.
     login_session['access_token'] = credentials.access_token
@@ -191,7 +189,6 @@ def gconnect():
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
-
     data = answer.json()
     print(data)
     login_session['username'] = data['name']
@@ -237,7 +234,7 @@ def gdisconnect():
 
 
 def create_user(login_session):
-    new_user = User(name=login_session["name"], email=login_session["email"], image=login_session["picture"])
+    new_user = User(name=login_session["username"], email=login_session["email"], image=login_session["picture"])
     session.add(new_user)
     session.commit()
     user = session.query(User).filter_by(email=login_session["email"]).one()
