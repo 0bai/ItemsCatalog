@@ -25,12 +25,12 @@ session.commit()
 
 #Users
 
-user1 = User(full_name="Obai Alnajjar", email="email@email.com", image="https://www.freeiconspng.com/uploads/account-icon-20.jpg")
+user1 = User(name="Obai Alnajjar", email="email@email.com", image="https://www.freeiconspng.com/uploads/account-icon-20.jpg")
 user1.hash_password("pass")
 session.add(user1)
 session.commit()
 
-user2 = User(full_name="Ahmed Alnajjar", email="text@text.com", image="https://www.freeiconspng.com/uploads/account-icon-20.jpg")
+user2 = User(name="Ahmed Alnajjar", email="text@text.com", image="https://www.freeiconspng.com/uploads/account-icon-20.jpg")
 user2.hash_password("somePass")
 session.add(user2)
 session.commit()
