@@ -10,9 +10,17 @@
         <label for="image">Image URL</label>
         <input type="text" name="image" id="image">
         <label for="category">Category</label>
+
         <select id="category" name="category">
-            <option value="1">Category 1</option>
+            {% for cat in categories %}
+                {% if  cat.name == category.name %}
+                    <option value="{{ category.id }}" selected="selected">{{ category.name }}</option>
+                {% else %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endif %}
+            {% endfor %}
         </select>
+
         <button type="submit">Submit</button>
     </form>
 {% endblock %}
