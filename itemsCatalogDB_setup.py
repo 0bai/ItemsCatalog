@@ -13,16 +13,16 @@ class Category(Base):
     __tablename__ = 'category'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    name = Column(String(250), nullable=False, index=True)
 
 
 class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
-    full_name = Column(String(80), nullable=False)
+    name = Column(String(80), nullable=False)
     email = Column(String(120), index=True)
-    password_hash = Column(String(64), nullable=False)
+    password_hash = Column(String(64))
     image = Column(String(250))
 
     def hash_password(self, password):
