@@ -24,11 +24,19 @@ session = DBSession()
 # Landing page route
 @app.route("/")
 def show_landing_page():
-    state = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
-    login_session["state"] = state
     categories = get_categories()
     latest = get_items(limit=10)
-    return render_template("index.html", categories=categories, latest=latest, STATE=state)
+    return render_template("index.html", categories=categories, latest=latest)
+
+
+# Create anti-forgery state token
+@app.route('/login')
+def show_login():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in range(32))
+    login_session['state'] = state
+    # return "The current session state is %s" % login_session['state']
+    return render_template('login.html', STATE=state)
 
 
 # Show category page route
