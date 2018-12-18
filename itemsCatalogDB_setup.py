@@ -14,6 +14,16 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False, index=True)
+    items = relationship("Item", backref="item")
+
+    @property
+    def serialize(self):
+        i = [i.serialize for i in self.items]
+        return {
+            "id": self.id,
+            "name": self.name,
+            "items": i
+        }
 
 
 class User(Base):
@@ -35,8 +45,17 @@ class Item(Base):
     category_id = Column(Integer, ForeignKey('category.id'))
     user_id = Column(Integer, ForeignKey('user.id'))
     timestamp = Column(DateTime, default=current_timestamp())
-    category = relationship(Category)
     user = relationship(User)
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "image": self.image,
+            "created": self.timestamp
+        }
 
 
 engine = create_engine('sqlite:///itemsCatalog.db')
