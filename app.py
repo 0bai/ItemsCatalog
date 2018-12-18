@@ -24,33 +24,11 @@ session = DBSession()
 # Landing page route
 @app.route("/")
 def show_landing_page():
-    categories = get_categories()
-    latest = get_items(limit=10)
-    return render_template("index.html", categories=categories, latest=latest)
-
-
-# Login page route
-@app.route("/login", methods=["GET", "POST"])
-def show_login_page():
     state = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
     login_session["state"] = state
-    if request.method == "GET":
-        return render_template("login.html", STATE=state)
-
-    return redirect(url_for("show_landing_page"))
-
-
-# Login page route
-@app.route("/signup", methods=["GET", "POST"])
-def show_signup_page():
-    if request.method == "GET":
-        return render_template("user/new.html")
-    user = User(name=request.form["name"], email=request.form["email"], image=request.form["image"])
-    user.hash_password(request.form["password"])
-    session.add(user)
-    session.commit()
-    # TODO  Add user to login_session
-    return redirect(url_for("show_landing_page"))
+    categories = get_categories()
+    latest = get_items(limit=10)
+    return render_template("index.html", categories=categories, latest=latest, STATE=state)
 
 
 # Show category page route
