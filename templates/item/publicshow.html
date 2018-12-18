@@ -1,0 +1,7 @@
+{% extends "includes/skeleton.html" %}
+{% block title %} {{ item.title }}{% endblock %}
+{% block body %}
+    <h1>{{ item.title }}</h1>
+    <p>{{ item.description }}</p>
+    <img src="{{ item.image }}" alt="{{ item.title }} picture">
+{% endblock %}
