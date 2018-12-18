@@ -195,7 +195,7 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         flash("Current user not connected")
-        return redirect(url_for(show_landing_page))
+        return redirect(url_for("show_landing_page"))
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -205,11 +205,12 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['user_id']
         flash("Successfully disconnected")
-        return redirect(url_for(show_landing_page))
+        return redirect(url_for("show_landing_page"))
     else:
         flash("Failed to revoke token for given user.")
-        return redirect(url_for(show_landing_page))
+        return redirect(url_for("show_landing_page"))
 
 
 def create_user(login_session):
