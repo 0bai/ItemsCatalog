@@ -123,6 +123,12 @@ def show_item(category, item):
     return redirect(url_for("show_landing_page"))
 
 
+@app.route("/catalog.json")
+def send_catalog():
+    categories=get_categories()
+    return jsonify(category=[i.serialize for i in categories])
+
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -250,7 +256,9 @@ def get_category_info(category_name=None, category_id=None):
 def get_items(category_id=None, limit=None):
     if limit:
         return session.query(Item).order_by(Item.timestamp.desc()).limit(10)
-    return session.query(Item).filter_by(category_id=category_id).all()
+    if category_id:
+        return session.query(Item).filter_by(category_id=category_id).all()
+    return session.query(Item).all()
 
 
 def get_item(title, category_id):
@@ -262,7 +270,7 @@ def get_item(title, category_id):
 
 
 def get_categories():
-    return session.query(Category).all()
+    return session.query(Category).order_by(Category.id).all()
 
 
 if __name__ == '__main__':
