@@ -50,8 +50,12 @@ def show_category(category):
 # Add new item page route
 @app.route("/items/new", methods=["GET", "POST"])
 def new_item():
+    if "username" not in login_session:
+        flash("Please Login!")
+        return redirect(url_for("show_login"))
     if request.method == "GET":
-        return render_template("item/new.html")
+        categories = get_categories()
+        return render_template("item/new.html", categories=categories)
     item = Item(title=request.form["title"], description=request.form["description"], image=request.form["image"],
                 category=get_category_info(category_id=request.form["category"]),
                 user=get_user_info(login_session["user_id"]),
@@ -66,9 +70,9 @@ def new_item():
 def edit_item(category, item):
     category = get_category_info(category_name=category)
     item = get_item(item, category.id)
-    categories = get_categories()
     # if the item exists
-    if item:
+    if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
+        categories = get_categories()
         if request.method == "GET":
             return render_template("item/edit.html", item=item, category=category, categories=categories)
         # if the category is changed check if there's an item with the same name in that category
@@ -86,22 +90,23 @@ def edit_item(category, item):
         session.add(item)
         session.commit()
         return redirect(url_for("show_item", item=item.title, category=category.name))
-    flash("Item does not exist!")
+    flash("Error either item doesn't exist or you don't have permission to access it !")
     return redirect(url_for("show_landing_page"))
 
 
 # Delete item page route
 @app.route("/<string:category>/<string:item>/delete", methods=["GET", "POST"])
 def delete_item(category, item):
-    if request.method == "GET":
-        return render_template("item/delete.html", category=category, item=item)
     category = get_category_info(category_name=category)
     item = get_item(item, category.id)
-    if item:
+    # if the item exists
+    if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
+        if request.method == "GET":
+            return render_template("item/delete.html", category=category, item=item)
         session.delete(item)
         session.commit()
         return redirect(url_for("show_category", category=category.name))
-    flash("Item does not exist!")
+    flash("Error either item doesn't exist or you don't have permission to access it !")
     return redirect(url_for("show_landing_page"))
 
 
@@ -110,29 +115,30 @@ def delete_item(category, item):
 def show_item(category, item):
     category = get_category_info(category_name=category)
     item = get_item(item, category.id)
-    return render_template("item/show.html", item=item, category=category)
+    if item:
+        if "user_id" in login_session and item.user_id == login_session["user_id"]:
+            return render_template("item/show.html", item=item, category=category)
+        return render_template("item/publicshow.html", item=item, category=category)
+    flash("Error item doesn't exist !")
+    return redirect(url_for("show_landing_page"))
 
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
     if request.args.get('state') != login_session['state']:
-        response = make_response(json.dumps('Invalid state parameter.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Invalid state parameter.")
+        return redirect(url_for("show_login"))
     # Obtain authorization code
     code = request.data
-
     try:
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        response = make_response(
-            json.dumps('Failed to upgrade the authorization code.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Failed to upgrade the authorization code.")
+        return redirect(url_for("show_login"))
 
     # Check that the access token is valid.
     access_token = credentials.access_token
@@ -142,27 +148,22 @@ def gconnect():
     result = json.loads(h.request(url, 'GET')[1].decode("utf-8"))
     # If there was an error in the access token info, abort.
     if result.get('error') is not None:
-        response = make_response(json.dumps(result.get('error')), 500)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Error: " + json.dumps(result.get('error')))
+        return redirect(url_for("show_login"))
 
     # Verify that the access token is used for the intended user.
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
-        response = make_response(
-            json.dumps("Token's user ID doesn't match given user ID."), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Token's user ID doesn't match given user ID.")
+        return redirect(url_for("show_login"))
 
     # Verify that the access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
-        response = make_response(
-            json.dumps("Token's client ID does not match app's."), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Token's client ID does not match app's.")
 
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
+
     if stored_access_token is not None and gplus_id == stored_gplus_id:
         flash("Current user is already connected.")
         return redirect(url_for("show_landing_page"))
@@ -190,33 +191,25 @@ def gconnect():
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    # Only disconnect a connected user.
     access_token = login_session.get('access_token')
     if access_token is None:
-        print('Access Token is None')
-        response = make_response(json.dumps('Current user not connected.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-    print('In gdisconnect access token is %s', access_token)
-    print('User name is: ')
-    print(login_session['username'])
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+        flash("Current user not connected")
+        return redirect(url_for(show_landing_page))
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
-    print('result is ')
-    print(result)
     if result['status'] == '200':
         del login_session['access_token']
         del login_session['gplus_id']
         del login_session['username']
         del login_session['email']
         del login_session['picture']
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Successfully disconnected")
+        return redirect(url_for(show_landing_page))
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Failed to revoke token for given user.")
+        return redirect(url_for(show_landing_page))
 
 
 def create_user(login_session):
@@ -261,7 +254,7 @@ def get_items(category_id=None, limit=None):
 
 def get_item(title, category_id):
     try:
-        item = session.query(Item).filter_by(title=title, category_id=category_id)
+        item = session.query(Item).filter_by(title=title, category_id=category_id).one()
         return item
     except:
         return None
