@@ -14,7 +14,7 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False, index=True)
-    items = relationship("Item", backref="item")
+    items = relationship("Item", back_populates="category")
 
     @property
     def serialize(self):
@@ -46,6 +46,7 @@ class Item(Base):
     user_id = Column(Integer, ForeignKey('user.id'))
     timestamp = Column(DateTime, default=current_timestamp())
     user = relationship(User)
+    category = relationship("Category", back_populates="items")
 
     @property
     def serialize(self):
