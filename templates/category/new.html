@@ -1,9 +1,0 @@
-{% include includes/header.html %}
-{% block title %}{% block page_name %}{% endblock %} - Category{% endblock %}
-<h1>New Category</h1>
-<form action="/category/new" method="post" enctype="multipart/form-data">
-    <label for="name">Category Name</label>
-    <input type="text" name="name" id="name">
-    <button type="submit">Create</button>
-</form>
-{% include includes/footer.html %}
