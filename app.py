@@ -43,8 +43,8 @@ def show_login():
 @app.route("/<string:category>")
 def show_category(category):
     categories = get_categories()
-    items = get_items(get_category_id(category))
-    return render_template("category/show.html", category=category, items=items, categories=categories)
+    category = next(cat for cat in categories if cat.name == category)
+    return render_template("category/show.html", category=category.name, items=category.items, categories=categories)
 
 
 # Add new item page route
@@ -53,31 +53,31 @@ def new_item():
     if "username" not in login_session:
         flash("Please Login!")
         return redirect(url_for("show_login"))
+    categories = get_categories()
     if request.method == "GET":
-        categories = get_categories()
         return render_template("item/new.html", categories=categories)
+    category = next(cat for cat in categories if cat.id == int(request.form["category"]))
     item = Item(title=request.form["title"], description=request.form["description"], image=request.form["image"],
-                category=get_category_info(category_id=request.form["category"]),
                 user=get_user_info(login_session["user_id"]),
                 user_id=login_session["user_id"], category_id=request.form["category"])
     session.add(item)
     session.commit()
-    return redirect(url_for("show_item", category=item.category.name, item=item.title))
+    return redirect(url_for("show_item", category=category.name, item=item.title))
 
 
 # Edit item page route
 @app.route("/<string:category>/<string:item>/edit", methods=["GET", "POST"])
 def edit_item(category, item):
-    category = get_category_info(category_name=category)
+    categories = get_categories()
+    category = next(cat for cat in categories if cat.name == category)
     item = get_item(item, category.id)
     # if the item exists
     if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
-        categories = get_categories()
         if request.method == "GET":
             return render_template("item/edit.html", item=item, category=category, categories=categories)
         # if the category is changed check if there's an item with the same name in that category
         if request.form["category"] != category.id:
-            new_category = get_category_info(category_id=request.form["category"])
+            new_category = next(cat for cat in categories if int(request.form["category"]) == cat.id)
             if get_item(item, new_category):
                 flash("An Item with this name already exist in the new category please select a new category !")
                 return redirect(url_for("edit_item", item=item.title, category=category.name))
