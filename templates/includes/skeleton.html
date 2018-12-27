@@ -50,7 +50,6 @@
 {% endblock nav_bar %}
 
 {% block flash_messages %}
-    <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -60,18 +59,17 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-    </div>
 {% endblock flash_messages %}
 
 
 {% block body %}
 
     {% block content %}
-        <div class="content mx-auto my-5 justify-center">
-            <div class="container m-1">
+        <div class="content">
+            <div class="container ">
                 <div class="row ">
                     {% block left_side %}
-                        <div class="col col-md-3 col-sm-1" id="left_side">
+                        <div class="col col-lg-3" id="left_side">
                             <h2>Categories</h2>
 
 
