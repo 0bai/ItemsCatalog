@@ -1,10 +1,13 @@
 {% extends "includes/skeleton.html" %}
 {% block title %} Delete Item {% endblock %}
-{% block body %}
-    <h1>Delete Item</h1>
-    <p>Are you sure you want to delete?</p>
-    <form action="/{{ category.name }}/{{ item.title }}/delete" method="post" enctype="multipart/form-data">
-        <button type="submit">Delete</button>
-        <a href="javascript:history.back()">Cancel</a>
-    </form>
+{{ super() }}
+{% block content %}
+    <div class="content">
+        <h1>Delete Item</h1>
+        <p>Are you sure you want to delete?</p>
+        <form action="/{{ category.name }}/{{ item.title }}/delete" method="post" enctype="multipart/form-data">
+            <button type="submit" class="btn btn-danger mb-2">Delete</button>
+            <a href="javascript:history.back()" class="btn btn-secondary mb-2">Cancel</a>
+        </form>
+    </div>
 {% endblock %}
