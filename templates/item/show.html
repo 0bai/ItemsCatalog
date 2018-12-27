@@ -11,8 +11,10 @@
                         <div class="card-body">
                             <h4><a href="">{{ item.title }}</a></h4>
                             <p>{{ item.description }}</p>
+                            {% if owner %}
                             <a href="/{{ category.name }}/{{ item.title }}/edit" class="btn btn-warning btn-sm btn-block">Edit</a>
                             <a href="/{{ category.name }}/{{ item.title }}/delete" class="btn btn-danger btn-sm btn-block">Delete</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

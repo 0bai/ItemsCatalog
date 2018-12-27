@@ -44,7 +44,8 @@ def show_login():
 def show_category(category):
     categories = get_categories()
     category = next(cat for cat in categories if cat.name == category)
-    return render_template("category/show.html", category=category.name, items=category.items, categories=categories, logged_in="user_id" in login_session)
+    return render_template("category/show.html", category=category.name, items=category.items, categories=categories,
+                           logged_in="user_id" in login_session)
 
 
 # Add new item page route
@@ -74,7 +75,8 @@ def edit_item(category, item):
     # if the item exists
     if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
         if request.method == "GET":
-            return render_template("item/edit.html", item=item, category=category, categories=categories, logged_in="user_id" in login_session)
+            return render_template("item/edit.html", item=item, category=category, categories=categories,
+                                   logged_in="user_id" in login_session)
         # if the category is changed check if there's an item with the same name in that category
         if request.form["category"] != category.id:
             new_category = next(cat for cat in categories if int(request.form["category"]) == cat.id)
@@ -103,7 +105,8 @@ def delete_item(category, item):
     # if the item exists
     if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
         if request.method == "GET":
-            return render_template("item/delete.html", category=category, item=item, logged_in="user_id" in login_session)
+            return render_template("item/delete.html", category=category, item=item,
+                                   logged_in="user_id" in login_session)
         session.delete(item)
         session.commit()
         return redirect(url_for("show_category", category=category.name))
@@ -117,7 +120,8 @@ def show_item(category, item):
     category = get_category_info(category_name=category)
     item = get_item(item, category.id)
     if item:
-        return render_template("item/show.html", item=item, category=category, logged_in="user_id" in login_session)
+        return render_template("item/show.html", item=item, category=category, logged_in="user_id" in login_session,
+                               owner="user_id" in login_session and item.user_id == login_session["user_id"])
     flash("Error item doesn't exist !", "danger")
     return redirect(url_for("show_landing_page"))
 
