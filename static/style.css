@@ -1,0 +1,27 @@
+body {
+    background-color: #DDDDDD !important;
+    color: #343A3F;
+}
+
+#left_side {
+    border-right: 1px solid #D0D0D0;
+}
+.content {
+    background-color: white;
+    border: #D0D0D0 solid 1px;
+    padding: 0 auto;
+    width: auto;
+    height: 650px;
+}
+img{
+    height: 400px !important;
+}
+
+
+.item {
+    color: #F94661;
+}
+
+.sub-item {
+    color: #AFABA9;
+}
