@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     {%- block head %}
-        <title>{% block title %}{% endblock %}</title>
+        <title>{% block title %}{% endblock title %}</title>
 
         {%- block metas %}
             <meta charset="utf-8">
@@ -10,12 +10,14 @@
         {%- endblock metas %}
 
         {%- block styles %}
+            <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
             {# Bootstrap #}
             <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
                   integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
                   crossorigin="anonymous">
         {%- endblock styles %}
-        {%- block scripts %}
+
+        {%- block bootstrap_scripts %}
             <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
                     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
                     crossorigin="anonymous"></script>
@@ -25,14 +27,30 @@
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
                     integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
                     crossorigin="anonymous"></script>
-        {%- endblock scripts %}
+        {%- endblock bootstrap_scripts %}
+
         {% block login_scripts %}
             <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
             <script src="//apis.google.com/js/platform.js?onload=start"></script>
-        {% endblock %}
+        {% endblock login_scripts %}
+
     {%- endblock head %}
 </head>
-<body>{% block body %} {% endblock %}</body>
+<body>
+{% block nav_bar %}
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Items Catalog
+        </a>
+        {% if logged_in %}
+            <a href="/gdisconnect" class="btn btn-danger my-2 my-sm-0">Logout</a>
+        {% else %}
+            <a href="/login" class="btn btn-primary my-2 my-sm-0">Login</a>
+        {% endif %}
+    </nav>
+{% endblock nav_bar %}
+
+{% endblock body %}
+</body>
 <p>Copyrights 2018 <a href="https://www.github.com/0bai">Obai Alnajjar</a></p>
 </html>
 
