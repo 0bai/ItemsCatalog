@@ -117,8 +117,7 @@ def show_item(category, item):
     category = get_category_info(category_name=category)
     item = get_item(item, category.id)
     if item:
-        if "user_id" in login_session and item.user_id == login_session["user_id"]:
-            return render_template("item/show.html", item=item, category=category, logged_in="user_id" in login_session)
+        return render_template("item/show.html", item=item, category=category, logged_in="user_id" in login_session)
     flash("Error item doesn't exist !", "danger")
     return redirect(url_for("show_landing_page"))
 
