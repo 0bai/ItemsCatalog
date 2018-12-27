@@ -1,21 +1,31 @@
 {% extends "includes/skeleton.html" %}
 {% block title %} Login {% endblock %}
-{% block body %}
+{{ super() }}
+{% block content %}
+    <div class="content">
+        <div class="container">
+            <div class="row  justify-content-center mt-5">
+                <div class="col-md-4 text-center">
 
-    <div id="signinButton">
-          <span class="g-signin"
-                data-scope="openid email"
-                data-clientid="709691510937-nm3cp20rqm0ps9qfufubud6pki2m8fsa.apps.googleusercontent.com"
-                data-redirecturi="postmessage"
-                data-accesstype="offline"
-                data-cookiepolicy="single_host_origin"
-                data-callback="signInCallback"
-                data-approvalprompt="force">
-          </span>
+                    <h1>Sign In with Google</h1>
+
+                    <div id="signinButton" style="display: inline-block">
+                          <span class="g-signin"
+                                data-scope="openid email"
+                                data-clientid="709691510937-nm3cp20rqm0ps9qfufubud6pki2m8fsa.apps.googleusercontent.com"
+                                data-redirecturi="postmessage"
+                                data-accesstype="offline"
+                                data-cookiepolicy="single_host_origin"
+                                data-callback="signInCallback"
+                                data-approvalprompt="force">
+                          </span>
+                    </div>
+
+                    <div id="result"></div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div id="result"></div>
-
     <script>
         function signInCallback(authResult) {
             if (authResult['code']) {
@@ -33,10 +43,10 @@
                     success: function (result) {
                         // Handle or verify the server response if necessary.
                         if (result) {
-                            $('#result').html('Login Successful!</br>' + result + '</br>Redirecting...')
+                            $('#result').html('Login Successful!</br>Redirecting...');
                             setTimeout(function () {
                                 window.location.href = "/";
-                            }, 0);
+                            }, 1000);
 
 
                         } else if (authResult['error']) {
