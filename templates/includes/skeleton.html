@@ -66,7 +66,30 @@
 
 {% block body %}
 
+    {% block content %}
+        <div class="content mx-auto my-5 justify-center">
+            <div class="container m-1">
+                <div class="row ">
+                    {% block left_side %}
+                        <div class="col col-md-3 col-sm-1" id="left_side">
+                            <h2>Categories</h2>
 
+
+                            {% for category in categories %}
+                                <a class="item" href="/{{ category.name }}">{{ category.name }}</a>
+                                <br>
+                            {% endfor %}
+
+
+                        </div>
+                    {% endblock left_side %}
+                    <hr>
+                    {% block right_side %}
+                    {% endblock right_side %}
+                </div>
+            </div>
+        </div>
+    {% endblock content %}
 {% endblock body %}
 </body>
 <p>Copyrights 2018 <a href="https://www.github.com/0bai">Obai Alnajjar</a></p>
