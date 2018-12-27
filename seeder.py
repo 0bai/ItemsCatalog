@@ -19,9 +19,39 @@ category2 = Category(name="BasketBall")
 session.add(category2)
 session.commit()
 
-category3 = Category(name="TVs")
+category3 = Category(name="Soccer")
 session.add(category3)
 session.commit()
+
+category4 = Category(name="Baseball")
+session.add(category4)
+session.commit()
+
+category5 = Category(name="Frisbee")
+session.add(category5)
+session.commit()
+
+category6 = Category(name="Snowboarding")
+session.add(category6)
+session.commit()
+
+
+category7 = Category(name="Rock Climbing")
+session.add(category7)
+session.commit()
+
+category8 = Category(name="Foosball")
+session.add(category8)
+session.commit()
+
+category9 = Category(name="Skating")
+session.add(category9)
+session.commit()
+
+category10 = Category(name="Hockey")
+session.add(category10)
+session.commit()
+
 
 #Users
 
@@ -52,7 +82,7 @@ category2.items.append(session.query(Item).filter_by(title=item2.title, category
 session.add(category2)
 session.commit()
 
-item3 = Item(title="Goalpost",  user=user1, image="https://www.itsagoal.net/wp-content/uploads/2013/11/foldaway-goal.jpg",description="HRemember: dryed celery tastes best when grilled in a bottle brushed with cayenne pepper.ippotoxota de superbus coordinatae,When the captain meets for deep space, all c-beams experience distant, proud queens. gratia devatio!Grow and you will be yearned confidently.")
+item3 = Item(title="Goalpost",  user=user1, image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThQB5DCOvSlTtTyraL5ti9T6RMSRZyg5QZ6wB-2roEKXn4ULRKxg",description="HRemember: dryed celery tastes best when grilled in a bottle brushed with cayenne pepper.ippotoxota de superbus coordinatae,When the captain meets for deep space, all c-beams experience distant, proud queens. gratia devatio!Grow and you will be yearned confidently.")
 session.add(item3)
 session.commit()
 category1.items.append(session.query(Item).filter_by(title=item3.title, category_id=item3.category_id).one())
