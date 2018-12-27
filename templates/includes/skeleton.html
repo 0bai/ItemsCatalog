@@ -49,6 +49,24 @@
     </nav>
 {% endblock nav_bar %}
 
+{% block flash_messages %}
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+{% endblock flash_messages %}
+
+
+{% block body %}
+
+
 {% endblock body %}
 </body>
 <p>Copyrights 2018 <a href="https://www.github.com/0bai">Obai Alnajjar</a></p>
