@@ -1,9 +1,22 @@
 {% extends "includes/skeleton.html" %}
 {% block title %} {{ item.title }}{% endblock %}
-{% block body %}
-    <h1>{{ item.title }}</h1>
-    <p>{{ item.description }}</p>
-    <img src="{{ item.image }}" alt="{{ item.title }} picture">
-    <a href="/{{ category.name }}/{{ item.title }}/edit">Edit</a>
-    <a href="/{{ category.name }}/{{ item.title }}/delete">Delete</a>
+{{ super() }}
+{% block content %}
+    <div class="content">
+        <div class="container">
+            <div class="row mt-4 justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <img src="{{ item.image }}" class="card-img-bottom img-fluid img-rounded" alt="{{ item.title }} picture">
+                        <div class="card-body">
+                            <h4><a href="">{{ item.title }}</a></h4>
+                            <p>{{ item.description }}</p>
+                            <a href="/{{ category.name }}/{{ item.title }}/edit" class="btn btn-warning btn-sm btn-block">Edit</a>
+                            <a href="/{{ category.name }}/{{ item.title }}/delete" class="btn btn-danger btn-sm btn-block">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
