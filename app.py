@@ -43,7 +43,11 @@ def show_login():
 @app.route("/<string:category>")
 def show_category(category):
     categories = get_categories()
-    category = next(cat for cat in categories if cat.name == category)
+    try:
+        category = next(cat for cat in categories if cat.name == category)
+    except StopIteration:
+        flash("Wrong Category Name", "danger")
+        return redirect("/")
     return render_template("category/show.html", category=category.name, items=category.items, categories=categories,
                            logged_in="user_id" in login_session)
 
@@ -57,7 +61,11 @@ def new_item():
     categories = get_categories()
     if request.method == "GET":
         return render_template("item/new.html", categories=categories, logged_in="user_id" in login_session)
-    category = next(cat for cat in categories if cat.id == int(request.form["category"]))
+    try:
+        category = next(cat for cat in categories if cat.id == int(request.form["category"]))
+    except StopIteration:
+        flash("Wrong Category Name", "danger")
+        return redirect("/")
     item = Item(title=request.form["title"], description=request.form["description"], image=request.form["image"],
                 user=get_user_info(login_session["user_id"]),
                 user_id=login_session["user_id"], category_id=request.form["category"])
@@ -70,7 +78,11 @@ def new_item():
 @app.route("/<string:category>/<string:item>/edit", methods=["GET", "POST"])
 def edit_item(category, item):
     categories = get_categories()
-    category = next(cat for cat in categories if cat.name == category)
+    try:
+        category = next(cat for cat in categories if cat.name == category)
+    except StopIteration:
+        flash("Wrong Category Name", "danger")
+        return redirect("/")
     item = get_item(item, category.id)
     # if the item exists
     if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
@@ -79,7 +91,11 @@ def edit_item(category, item):
                                    logged_in="user_id" in login_session)
         # if the category is changed check if there's an item with the same name in that category
         if request.form["category"] != category.id:
-            new_category = next(cat for cat in categories if int(request.form["category"]) == cat.id)
+            try:
+                new_category = next(cat for cat in categories if int(request.form["category"]) == cat.id)
+            except StopIteration:
+                flash("Wrong Category Name", "danger")
+                return redirect("/")
             if get_item(item, new_category):
                 flash("An Item with this name already exist in the new category please select a new category !",
                       "danger")
@@ -148,7 +164,6 @@ def gconnect():
     except FlowExchangeError:
         flash("Failed to upgrade the authorization code.", "danger")
         return redirect(url_for("show_login"))
-
     # Check that the access token is valid.
     access_token = credentials.access_token
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
@@ -159,34 +174,28 @@ def gconnect():
     if result.get('error') is not None:
         flash("Error: " + json.dumps(result.get('error')), "danger")
         return redirect(url_for("show_login"))
-
     # Verify that the access token is used for the intended user.
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
         flash("Token's user ID doesn't match given user ID.", "danger")
         return redirect(url_for("show_login"))
-
     # Verify that the access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
         flash("Token's client ID does not match app's.", "danger")
 
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
-
     if stored_access_token is not None and gplus_id == stored_gplus_id:
         flash("Current user is already connected.", "success")
         return redirect(url_for("show_landing_page"))
-
     # Store the access token in the session for later use.
     login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
-
     # Get user info
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
     data = answer.json()
-    print(data)
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
