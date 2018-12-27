@@ -3,11 +3,15 @@
 {{ super() }}
 {% block content %}
     <div class="content">
+        <div class="row  justify-content-center mt-5">
+            <div class="col-md-12 text-center">
         <h1>Delete Item</h1>
         <p>Are you sure you want to delete?</p>
         <form action="/{{ category.name }}/{{ item.title }}/delete" method="post" enctype="multipart/form-data">
             <button type="submit" class="btn btn-danger mb-2">Delete</button>
             <a href="javascript:history.back()" class="btn btn-secondary mb-2">Cancel</a>
         </form>
+    </div>
+        </div>
     </div>
 {% endblock %}
