@@ -1,16 +1,23 @@
-from flask import Flask, render_template, request, redirect, make_response, jsonify, url_for, flash, make_response, \
-    session as login_session
-import random, string, httplib2, json, requests
-from sqlalchemy import create_engine, desc
-from sqlalchemy.orm import sessionmaker
-from itemsCatalogDB_setup import Base, User, Item, Category
-from oauth2client.client import flow_from_clientsecrets
+import httplib2
+import json
+import random
+import requests
+import string
+from functools import wraps
+from flask import Flask, render_template, request, redirect, jsonify, \
+    url_for, flash, session as login_session
 from oauth2client.client import FlowExchangeError
+from oauth2client.client import flow_from_clientsecrets
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import MultipleResultsFound
+
+from itemsCatalogDB_setup import Base, User, Item, Category
 
 app = Flask(__name__)
 
-CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(open('client_secrets.json', 'r')
+                       .read())['web']['client_id']
 APPLICATION_NAME = "Items Catalog"
 
 # Connect to Database and create database session
@@ -26,7 +33,8 @@ session = DBSession()
 def show_landing_page():
     categories = get_categories()
     latest = get_items(limit=10)
-    return render_template("index.html", categories=categories, latest=latest, logged_in="user_id" in login_session)
+    return render_template("index.html", categories=categories, latest=latest,
+                           logged_in="user_id" in login_session)
 
 
 # Create anti-forgery state token
@@ -36,7 +44,20 @@ def show_login():
                     for x in range(32))
     login_session['state'] = state
     # return "The current session state is %s" % login_session['state']
-    return render_template('login.html', STATE=state, logged_in="user_id" in login_session)
+    return render_template('login.html', STATE=state,
+                           logged_in="user_id" in login_session)
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' in login_session:
+            return f(*args, **kwargs)
+        else:
+            flash('You are not allowed to access there')
+            return redirect('/login')
+
+    return decorated_function
 
 
 # Show category page route
@@ -48,34 +69,41 @@ def show_category(category):
     except StopIteration:
         flash("Wrong Category Name", "danger")
         return redirect("/")
-    return render_template("category/show.html", category=category.name, items=category.items, categories=categories,
+    return render_template("category/show.html", category=category.name,
+                           items=category.items, categories=categories,
                            logged_in="user_id" in login_session)
 
 
 # Add new item page route
+
 @app.route("/items/new", methods=["GET", "POST"])
+@login_required
 def new_item():
-    if "username" not in login_session:
-        flash("Please Login!", "danger")
-        return redirect(url_for("show_login"))
     categories = get_categories()
     if request.method == "GET":
-        return render_template("item/new.html", categories=categories, logged_in="user_id" in login_session)
+        return render_template("item/new.html", categories=categories,
+                               logged_in="user_id" in login_session)
     try:
-        category = next(cat for cat in categories if cat.id == int(request.form["category"]))
+        category = next(cat for cat in categories if
+                        cat.id == int(request.form["category"]))
     except StopIteration:
         flash("Wrong Category Name", "danger")
         return redirect("/")
-    item = Item(title=request.form["title"], description=request.form["description"], image=request.form["image"],
+    item = Item(title=request.form["title"],
+                description=request.form["description"],
+                image=request.form["image"],
                 user=get_user_info(login_session["user_id"]),
-                user_id=login_session["user_id"], category_id=request.form["category"])
+                user_id=login_session["user_id"],
+                category_id=request.form["category"])
     session.add(item)
     session.commit()
-    return redirect(url_for("show_item", category=category.name, item=item.title))
+    return redirect(
+        url_for("show_item", category=category.name, item=item.title))
 
 
 # Edit item page route
 @app.route("/<string:category>/<string:item>/edit", methods=["GET", "POST"])
+@login_required
 def edit_item(category, item):
     categories = get_categories()
     try:
@@ -85,21 +113,25 @@ def edit_item(category, item):
         return redirect("/")
     item = get_item(item, category.id)
     # if the item exists
-    if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
+    if item and item.user_id == login_session["user_id"]:
         if request.method == "GET":
-            return render_template("item/edit.html", item=item, category=category, categories=categories,
+            return render_template("item/edit.html", item=item,
+                                   category=category, categories=categories,
                                    logged_in="user_id" in login_session)
-        # if the category is changed check if there's an item with the same name in that category
+        # if the category is changed check if there's
+        # an item with the same name in that category
         if request.form["category"] != category.id:
             try:
-                new_category = next(cat for cat in categories if int(request.form["category"]) == cat.id)
+                new_category = next(cat for cat in categories if
+                                    int(request.form["category"]) == cat.id)
             except StopIteration:
                 flash("Wrong Category Name", "danger")
                 return redirect("/")
             if get_item(item, new_category):
-                flash("An Item with this name already exist in the new category please select a new category !",
-                      "danger")
-                return redirect(url_for("edit_item", item=item.title, category=category.name))
+                flash("An Item with this name already exist in the new"
+                      " category please select a new category !", "danger")
+                return redirect(url_for("edit_item", item=item.title,
+                                        category=category.name))
             category = new_category
         item.title = request.form["title"]
         item.description = request.form["description"]
@@ -108,25 +140,30 @@ def edit_item(category, item):
         item.category_id = category.id
         session.add(item)
         session.commit()
-        return redirect(url_for("show_item", item=item.title, category=category.name))
-    flash("Error either item doesn't exist or you don't have permission to access it !", "danger")
+        return redirect(
+            url_for("show_item", item=item.title, category=category.name))
+    flash("Error either item doesn't exist or"
+          " you don't have permission to access it !", "danger")
     return redirect(url_for("show_landing_page"))
 
 
 # Delete item page route
 @app.route("/<string:category>/<string:item>/delete", methods=["GET", "POST"])
+@login_required
 def delete_item(category, item):
     category = get_category_info(category_name=category)
     item = get_item(item, category.id)
     # if the item exists
-    if item and "user_id" in login_session and item.user_id == login_session["user_id"]:
+    if item and item.user_id == login_session["user_id"]:
         if request.method == "GET":
-            return render_template("item/delete.html", category=category, item=item,
+            return render_template("item/delete.html", category=category,
+                                   item=item,
                                    logged_in="user_id" in login_session)
         session.delete(item)
         session.commit()
         return redirect(url_for("show_category", category=category.name))
-    flash("Error either item doesn't exist or you don't have permission to access it !", "danger")
+    flash("Error either item doesn't exist or you"
+          " don't have permission to access it !", "danger")
     return redirect(url_for("show_landing_page"))
 
 
@@ -136,8 +173,10 @@ def show_item(category, item):
     category = get_category_info(category_name=category)
     item = get_item(item, category.id)
     if item:
-        return render_template("item/show.html", item=item, category=category, logged_in="user_id" in login_session,
-                               owner="user_id" in login_session and item.user_id == login_session["user_id"])
+        return render_template("item/show.html", item=item, category=category,
+                               logged_in="user_id" in login_session,
+                               owner="user_id" in login_session and
+                                     item.user_id == login_session["user_id"])
     flash("Error item doesn't exist !", "danger")
     return redirect(url_for("show_landing_page"))
 
@@ -232,7 +271,9 @@ def gdisconnect():
 
 
 def create_user(login_session):
-    new_user = User(name=login_session["username"], email=login_session["email"], image=login_session["picture"])
+    new_user = User(name=login_session["username"],
+                    email=login_session["email"],
+                    image=login_session["picture"])
     session.add(new_user)
     session.commit()
     user = session.query(User).filter_by(email=login_session["email"]).one()
@@ -247,7 +288,7 @@ def get_user_id(email):
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
-    except:
+    except MultipleResultsFound:
         return None
 
 
@@ -255,7 +296,7 @@ def get_category_id(name):
     try:
         category = session.query(Category).filter_by(name=name).one()
         return category.id
-    except:
+    except MultipleResultsFound:
         return None
 
 
@@ -275,9 +316,10 @@ def get_items(category_id=None, limit=None):
 
 def get_item(title, category_id):
     try:
-        item = session.query(Item).filter_by(title=title, category_id=category_id).one()
+        item = session.query(Item).filter_by(title=title,
+                                             category_id=category_id).one()
         return item
-    except:
+    except MultipleResultsFound:
         return None
 
 
