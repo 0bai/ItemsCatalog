@@ -10,7 +10,7 @@ from oauth2client.client import FlowExchangeError
 from oauth2client.client import flow_from_clientsecrets
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import MultipleResultsFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from itemsCatalogDB_setup import Base, User, Item, Category
 
@@ -54,7 +54,7 @@ def login_required(f):
         if 'username' in login_session:
             return f(*args, **kwargs)
         else:
-            flash('You are not allowed to access there')
+            flash('You are not allowed to access there', 'danger')
             return redirect('/login')
 
     return decorated_function
@@ -296,7 +296,7 @@ def get_category_id(name):
     try:
         category = session.query(Category).filter_by(name=name).one()
         return category.id
-    except MultipleResultsFound:
+    except NoResultFound:
         return None
 
 
@@ -330,4 +330,4 @@ def get_categories():
 if __name__ == '__main__':
     app.secret_key = "5Jdkl892$21!*9dsfjljeiol"
     app.debug = True
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8080)

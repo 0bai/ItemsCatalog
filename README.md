@@ -49,7 +49,8 @@ python3 app.py
 ## Running the tests
 
 ### Program correctness
-To check the program for correctness access the [web page](http://localhost:8000) and sign in with your google account. 
+To check the program for correctness access the [web page](http://localhost:8000) and sign in with your google account.
+
 ### Python code style
 
 To check if the program file conforms to Python code style run
@@ -59,10 +60,10 @@ pycodestyle app.py
 ```
 
 ## Built With
-* [python3](https://www.python.org/download/releases/3.0/) Python is an open soure and easy to learn programming language. 
+* [python3](https://www.python.org/download/releases/3.0/) Python is an open soure and easy to learn programming language.
 * [pip3](https://pip.pypa.io/en/stable/) - Dependency Management.
 * [flask](http://flask.pocoo.org) - Flask is a microframework for Python based on Werkzeug and Jinja 2.
-* [OAuth2](https://oauth.net/2/) - OAuth 2.0 is the industry-standard protocol for authorization. 
+* [OAuth2](https://oauth.net/2/) - OAuth 2.0 is the industry-standard protocol for authorization.
 * [sqlalchemy](https://www.sqlalchemy.org) - SQLAlchemy is the Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
 
 ## Authors
